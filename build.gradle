@@ -24,33 +24,35 @@ jlink {
 }
 
 tasks.jpackageImage.doLast {
-    def appName = jpackageData.imageName
-    def dir = "$jpackageData.imageOutputDir/$appName"
-    file("$dir/lib").mkdirs()
-    ant.move(todir: "$dir/lib") {
-        fileset(dir: dir) {
-            include name: "*.dll"
+    if (org.gradle.internal.os.OperatingSystem.current().windows) {
+        def appName = jpackageData.imageName
+        def dir = "$jpackageData.imageOutputDir/$appName"
+        file("$dir/lib").mkdirs()
+        ant.move(todir: "$dir/lib") {
+            fileset(dir: dir) {
+                include name: "*.dll"
+            }
         }
-    }
 
-    file("$dir/${appName}.exe").renameTo "$dir/__app.exe"
+        file("$dir/${appName}.exe").renameTo "$dir/__app.exe"
 
-    copy {
-        from dir
-        into dir
-        include "${appName}.ico"
-        rename ("${appName}.ico", "__app.ico")
-    }
-    copy {
-        from "$dir/app"
-        into "$dir/app"
-        include "${appName}.cfg"
-        rename ("${appName}.cfg", "__app.cfg")
-    }
-    copy {
-        from "src/main/resources"
-        into dir
-        include "launcher.exe"
-        rename ("launcher.exe", "${appName}.exe")
+        copy {
+            from dir
+            into dir
+            include "${appName}.ico"
+            rename ("${appName}.ico", "__app.ico")
+        }
+        copy {
+            from "$dir/app"
+            into "$dir/app"
+            include "${appName}.cfg"
+            rename ("${appName}.cfg", "__app.cfg")
+        }
+        copy {
+            from "src/main/resources"
+            into dir
+            include "launcher.exe"
+            rename ("launcher.exe", "${appName}.exe")
+        }
     }
 }
